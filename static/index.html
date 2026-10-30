@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sentinel · CCTV Monitor</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">S</span><span>sentinel<small>THREAT MONITOR</small></span></div>
+    <div class="nav-label">WORKSPACE</div><a class="nav active" href="#overview"><span class="nav-icon">▦</span><span
+        class="nav-text">Overview</span></a><a class="nav" href="#incidents"><span class="nav-icon">◉</span><span
+        class="nav-text">Incidents</span><span class="nav-count" id="nav-count">0</span></a><a class="nav"
+      href="#cameras"><span class="nav-icon">▣</span><span class="nav-text">Cameras</span></a><a class="nav"
+      href="#demo-guide"><span class="nav-icon">ⓘ</span><span class="nav-text">Guide</span></a>
+    <div class="sidebar-bottom"><span class="live-dot" id="rail-dot"></span><span id="rail-status">Checking Java
+        API</span><small>DEMO MODE · NO AI MODEL</small>
+    </div>
+  </aside>
+  <main id="overview">
+    <header>
+      <div>
+        <p class="eyebrow">MONITORING / OVERVIEW</p>
+        <h1>Security overview</h1>
+        <p class="subhead">Review camera sources and investigate reported events.</p>
+      </div>
+      <div class="header-right"><span class="status" id="backend-status"><i></i> Checking server…</span><button
+          class="button primary" id="demo-alert">＋ &nbsp; Create demo alert</button></div>
+    </header>
+    <section class="connection-alert" id="connection-alert" hidden><b id="connection-title">Dashboard server is not
+        reachable.</b><span id="connection-help">Start the Java backend, then open the dashboard from its local
+        address.</span><code>cd "D:\Projrct Final Year"<br>mvn spring-boot:run</code><span>Open
+        <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>. Don’t open <code>static/index.html</code>
+        directly.</span><button class="button dark" id="retry-connection" type="button">Retry connection</button>
+    </section>
+    <section class="notice"><span>ⓘ</span>
+      <div><b>Demo mode: detection models are not configured.</b> Alerts created here are for workflow demonstration
+        only. No video is analyzed.</div><button class="text-button" id="open-guide">Show me around →</button>
+    </section>
+    <section class="stats">
+      <article class="stat">
+        <div class="stat-label">REGISTERED CAMERAS <span>▣</span></div>
+        <div class="stat-value" id="camera-total">0</div>
+        <div class="stat-foot">Sources registered locally</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">PENDING REVIEW <span class="orange">◉</span></div>
+        <div class="stat-value" id="pending-total">0</div>
+        <div class="stat-foot">Require operator review</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">CONFIRMED TODAY <span class="green">✓</span></div>
+        <div class="stat-value" id="confirmed-total">0</div>
+        <div class="stat-foot">Human-reviewed incidents</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">DETECTOR STATUS <span>⌁</span></div>
+        <div class="stat-word">Not configured</div>
+        <div class="stat-foot">Connect a model in a later phase</div>
+      </article>
+    </section>
+    <div class="columns">
+      <section class="panel" id="incidents">
+        <div class="panel-head">
+          <div>
+            <h2>Recent incidents</h2>
+            <p>Alerts awaiting operator review</p>
+          </div>
+          <div class="panel-actions"><input id="incident-search" type="search" aria-label="Search incidents"
+              placeholder="Search incidents"><select id="incident-filter" aria-label="Filter incidents">
+              <option value="all">All incidents</option>
+              <option value="pending">Pending review</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="false_alarm">False alarms</option>
+            </select><span class="pill" id="incident-count">0 EVENTS</span></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>EVENT</th>
+                <th>CAMERA</th>
+                <th>TIME</th>
+                <th>STATUS</th>
+                <th>REVIEW</th>
+              </tr>
+            </thead>
+            <tbody id="incident-rows"></tbody>
+          </table>
+          <div class="empty" id="empty-incidents">
+            <div>◉</div><b>No incidents yet</b>
+            <p>Create a demo alert to explore the review workflow.</p>
+          </div>
+        </div>
+      </section>
+      <section class="panel camera-panel" id="cameras">
+        <div class="panel-head">
+          <div>
+            <h2>Camera sources</h2>
+            <p>Registered inputs (not connected)</p>
+          </div>
+        </div>
+        <form id="camera-form"><label>Camera name<input name="name" required maxlength="80"
+              placeholder="e.g. Main entrance"></label><label>Source URL or file path<input name="source" required
+              maxlength="500" placeholder="rtsp://… or video file path"></label><button class="button dark"
+            type="submit">Add camera source</button></form>
+        <div id="camera-list" class="camera-list"></div>
+        <div class="panel-note">Sources are saved for setup planning; this version does not open streams.</div>
+      </section>
+    </div>
+    <section class="panel guide" id="demo-guide">
+      <div class="panel-head">
+        <div>
+          <h2>Guided demo</h2>
+          <p>Explore the human review workflow using clearly labelled sample data.</p>
+        </div><button class="button primary" id="run-demo">Run guided demo</button>
+      </div>
+      <div class="guide-steps">
+        <div><b>01</b><strong>Register a source</strong>
+          <p>Add a camera name and authorized stream URL or video path. It is stored as a source entry only.</p>
+        </div>
+        <div><b>02</b><strong>Create sample alerts</strong>
+          <p>The demo adds three fictional alerts for violence, weapon, and accident categories. They are not
+            detections.</p>
+        </div>
+        <div><b>03</b><strong>Review each alert</strong>
+          <p>Confirm an alert or mark it as a false alarm. Use the filter above to find reviewed events.</p>
+        </div>
+      </div>
+    </section>
+    <footer>Sentinel MVP <span>·</span> Use only footage and camera feeds you are authorized to access.</footer>
+  </main>
+  <dialog id="alert-dialog">
+    <form id="alert-form">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">DEMO WORKFLOW</p>
+          <h2>Create a sample alert</h2>
+        </div><button type="button" class="close-dialog" id="close-dialog" aria-label="Close">×</button>
+      </div>
+      <p class="dialog-copy">This creates a fictional incident so you can try the operator review controls. It does not
+        analyze footage.</p><label>Event type<select name="category">
+          <option>Demo alert</option>
+          <option>Violence</option>
+          <option>Weapon</option>
+          <option>Accident</option>
+          <option>Fire / smoke</option>
+          <option>Fall</option>
+        </select></label><label>Camera source<select name="camera_id" id="alert-camera">
+          <option value="">Demo source (unassigned)</option>
+        </select></label>
+      <div class="dialog-actions"><button type="button" class="button light" id="cancel-dialog">Cancel</button><button
+          type="submit" class="button primary">Create sample alert</button></div>
+    </form>
+  </dialog>
+  <div id="toast" role="status"></div>
+  <script src="/static/app.js"></script>
+</body>
+
+</html>
